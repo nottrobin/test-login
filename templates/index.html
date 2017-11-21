@@ -4,12 +4,13 @@
   <input type="submit" value="Login" />
 </form>
 
-<div>
-  <a href="/logged">Go to super protected page</a>
-</div>
+<p><a href="/logged">Go to super protected page</a></p>
 
-{% if connected %}
-  <a href="/logout">Logout</a>
-{% endif %}
+<p>
+  <table>
+      <tr><th style="text-align: left">Root</th><td>{{ macaroon_root }}</tr>
+      <tr><th style="text-align: left">Discharge</th><td>{{ macaroon_discharge }}</tr>
+  </table>
+</p>
 
 <p>Created by Toto</p>

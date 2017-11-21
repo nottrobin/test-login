@@ -79,7 +79,11 @@ def get_authorization_header(root, discharge):
 
 @app.route('/')
 def homepage():
-    return flask.render_template('index.html')
+    return flask.render_template(
+        'index.html',
+        root=flask.session.get('macaroon_root'),
+        discharge=flask.session.get('macaroon_discharge')
+    )
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -120,6 +124,16 @@ def create_or_login(resp):
 
     flask.session['macaroon_discharge'] = resp.extensions['macaroon'].discharge
 
+    return flask.redirect(oid.get_next_url())
+
+
+@app.route('/documentation-builder')
+def documentation_builder_v3():
+    if not (
+        flask.session.get('macaroon_root') and flask.session.get('discharge')
+    ):
+        return flask.render_template('403.html'), 403
+
     authorization = get_authorization_header(
         flask.session['macaroon_root'],
         flask.session['macaroon_discharge']
@@ -135,7 +149,8 @@ def create_or_login(resp):
     )
 
     response = requests.request(url=url, method='GET', headers=headers)
-    response.raise_for_status()
+    if response.status_code == 404:
+        return flask.render_template('404.html'), 404
 
     print('HTTP/1.1 {} {}'.format(response.status_code, response.reason))
 
